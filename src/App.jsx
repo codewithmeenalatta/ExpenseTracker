@@ -1,15 +1,13 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
-// FIXED: Added .jsx to the end of all these files so Vite doesn't crash!
 import Home from './pages/Dashboard.jsx';
 import Login from './pages/Login.jsx';
+// FIXED: Added the missing import for Register!
+import Register from './pages/register.jsx'; 
 
-
-// FIXED: Changed 'component' to 'components' (with an 's') and added .jsx
 import Layout from './component/Layout.jsx'; 
 import ProtectedRoute from './component/ProtectedRoute.jsx';
-import {Register} from './pages/Register.jsx'
-// Define our nested routes
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -17,7 +15,6 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        // Our Security Guard wrapping the Dashboard
         element: (
           <ProtectedRoute>
             <Home />
@@ -37,7 +34,6 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-    // We moved the background classes into the Layout component, so App is perfectly clean
     return <RouterProvider router={router} />;
 }
 

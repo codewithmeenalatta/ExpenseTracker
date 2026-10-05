@@ -3,7 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "../api/axios.js";
 import { User, Mail, Lock, AlertCircle } from "lucide-react";
 
- export const   Register =() => {
+// FIXED: Changed "oonst" to "const"
+const Register = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: "",
@@ -15,7 +16,7 @@ import { User, Mail, Lock, AlertCircle } from "lucide-react";
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
-        setError(""); // Clear error when user starts typing again
+        setError(""); 
     };
 
     const handleSubmit = async (e) => {
@@ -24,13 +25,9 @@ import { User, Mail, Lock, AlertCircle } from "lucide-react";
         setError("");
 
         try {
-            // Send data to our backend
             await axios.post('/auth/register', formData);
-            
-            // If successful, send them to the login page
             navigate('/login');
         } catch (err) {
-            // FIXED: This catches the 400 error and displays the backend message!
             setError(err.response?.data?.message || "Failed to register. Please try again.");
         } finally {
             setLoading(false);
@@ -43,7 +40,6 @@ import { User, Mail, Lock, AlertCircle } from "lucide-react";
                 <h2 className="text-3xl font-bold text-center text-white mb-2">Create Account</h2>
                 <p className="text-zinc-400 text-center mb-8">Start tracking your expenses today</p>
 
-                {/* Beautiful Error Box */}
                 {error && (
                     <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-xl flex items-center gap-3 text-red-500">
                         <AlertCircle size={20} />
@@ -107,3 +103,5 @@ import { User, Mail, Lock, AlertCircle } from "lucide-react";
         </div>
     );
 }
+
+export default Register;

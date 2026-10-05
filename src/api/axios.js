@@ -1,6 +1,9 @@
 import axios from "axios";
+
 const instance = axios.create({
-    baseURL : 'http://localhost:5000/api',
-    withCredentials : true,
+    // This tells Vite to read the VITE_API_URI from your .env file
+    baseURL: import.meta.env.VITE_API_URI,
+    withCredentials: true,
 });
+
 export default instance;
