@@ -129,6 +129,7 @@ export default function Dashboard() {
             dispatch(deleteExpenseState(id));
         } catch (error) {
             setError("Failed to delete expense");
+            console.log(error)
         }
     };
 
@@ -137,7 +138,8 @@ export default function Dashboard() {
             const res = await axios.put('/auth/budget', { monthlyBudget: Number(newBudgetInput) });
             setBudget(res.data.monthlyBudget);
             setIsEditingBudget(false);
-        } catch (error) {
+        } catch (error) { 
+            console.log(error)
             setError("Failed to update budget");
         }
     };
@@ -149,6 +151,7 @@ export default function Dashboard() {
             const res = await axios.get('/ai/advice');
             setAiAdvice(res.data.advice);
         } catch (error) {
+             console.log(error)
             setAiAdvice("The AI is taking a quick nap. Please try again later!");
         } finally {
             setAiLoading(false);

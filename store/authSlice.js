@@ -15,6 +15,7 @@ try {
 } catch (error) {
     // If anything goes wrong, just start with no user
     localStorage.removeItem('user');
+    console.log(error)
 }
 
 const initialState = {
