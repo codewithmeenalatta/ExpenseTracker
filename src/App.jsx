@@ -3,7 +3,9 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 // FIXED: Added .jsx to the end of all these files so Vite doesn't crash!
 import Home from './pages/Dashboard.jsx';
 import Login from './pages/Login.jsx';
-import Register from './pages/Register.jsx';
+// import Register from './pages/Register.jsx';
+// import Register from "./pages/Register.jsx';
+import Register from'./pages/Register.jsx';
 
 // FIXED: Changed 'component' to 'components' (with an 's') and added .jsx
 import Layout from './component/Layout.jsx'; 
