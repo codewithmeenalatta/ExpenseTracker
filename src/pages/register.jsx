@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "../api/axios.js";
 import { User, Mail, Lock, AlertCircle } from "lucide-react";
 
-export default function Register() {
+ export const   Register =() => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: "",
