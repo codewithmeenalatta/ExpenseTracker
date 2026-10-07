@@ -40,10 +40,16 @@ export default function Dashboard() {
         }
     }, [user]);
 
-    // --- Calculations ---
-    const totalSpent = expenses.reduce((total, item) => total + Number(item.amount), 0);
+    // ==========================================
+    // 🛡️ THE FIX: SAFETY NET FOR EXPENSES
+    // ==========================================
+    // This guarantees that safeExpenses is ALWAYS an array, so .reduce() will never crash!
+    const safeExpenses = Array.isArray(expenses) ? expenses : [];
+
+    // --- Calculations (Now using safeExpenses!) ---
+    const totalSpent = safeExpenses.reduce((total, item) => total + Number(item.amount), 0);
     
-    const categoryMap = expenses.reduce((acc, curr) => {
+    const categoryMap = safeExpenses.reduce((acc, curr) => {
         acc[curr.category] = (acc[curr.category] || 0) + Number(curr.amount);
         return acc;
     }, {});
@@ -52,12 +58,12 @@ export default function Dashboard() {
         ? Object.keys(categoryMap).reduce((a, b) => categoryMap[a] > categoryMap[b] ? a : b)
         : "N/A";
 
-    // Budget Progress Math (Ensures it never goes past 100% visually)
+    // Budget Progress Math
     const safeBudget = budget > 0 ? budget : 1;
     const budgetPercentage = Math.min((totalSpent / safeBudget) * 100, 100);
 
-    // Filter Logic
-    const filteredExpenses = expenses.filter((exp) => {
+    // Filter Logic (Now using safeExpenses!)
+    const filteredExpenses = safeExpenses.filter((exp) => {
         const matchesSearch = exp.title.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesCategory = selectedCategory === "All" || exp.category === selectedCategory;
         return matchesSearch && matchesCategory;
@@ -68,6 +74,8 @@ export default function Dashboard() {
         const fetchExpenses = async () => {
             try {
                 const res = await axios.get('/expenses');
+                // Note: If your backend sends { success: true, data: [...] }, 
+                // you might need to change this to: dispatch(setExpenses(res.data.data));
                 dispatch(setExpenses(res.data));
             } catch (error) {
                 if (error.response?.status === 401) {
@@ -87,17 +95,14 @@ export default function Dashboard() {
         setLoading(true);
         try {
             if (editingId) {
-                // If editingId exists, we are UPDATING an old expense
                 const res = await axios.put(`/expenses/${editingId}`, newExpense);
                 dispatch(updateExpenseState(res.data));
-                setEditingId(null); // Turn off edit mode when done
+                setEditingId(null); 
             } else {
-                // If no editingId, we are ADDING a new expense
                 const res = await axios.post('/expenses', newExpense);
                 dispatch(addExpenseState(res.data));
             }
             
-            // Clear the form back to blank
             setNewExpense({ title: "", amount: "", category: "Food", date: "" });
         } catch (error) {
             setError(error.response?.data?.message || "Failed to save expense");
@@ -106,9 +111,7 @@ export default function Dashboard() {
         }
     };
 
-    // When the user clicks the "Edit" button, fill the form!
     const handleEditClick = (expense) => {
-        // Format the date so it fits in the HTML calendar input
         const formattedDate = expense.date ? new Date(expense.date).toISOString().split('T')[0] : "";
         
         setNewExpense({
@@ -117,9 +120,8 @@ export default function Dashboard() {
             category: expense.category,
             date: formattedDate
         });
-        setEditingId(expense._id); // Turn on edit mode
+        setEditingId(expense._id); 
         
-        // Scroll to the top of the page so the user sees the form
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -159,9 +161,9 @@ export default function Dashboard() {
     };
 
     const handleExportCSV = () => {
-        if (expenses.length === 0) return alert("No expenses to download!");
+        if (safeExpenses.length === 0) return alert("No expenses to download!");
         let csvContent = "Title,Amount (INR),Category,Date\n";
-        expenses.forEach(exp => {
+        safeExpenses.forEach(exp => {
             const date = exp.date ? new Date(exp.date).toLocaleDateString() : "No date";
             csvContent += `${exp.title},${exp.amount},${exp.category},${date}\n`;
         });
@@ -253,7 +255,7 @@ export default function Dashboard() {
                                 </div>
                             )}
                         </div>
-                        <button onClick={getAiAdvice} disabled={aiLoading || expenses.length === 0} className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-800/50 text-white py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-indigo-500/20">
+                        <button onClick={getAiAdvice} disabled={aiLoading || safeExpenses.length === 0} className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-800/50 text-white py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-indigo-500/20">
                             {aiLoading ? "Thinking..." : "Analyze Spending"}
                         </button>
                     </div>
@@ -266,7 +268,7 @@ export default function Dashboard() {
                         </div>
                         <div className="bg-zinc-900/40 border border-zinc-800/80 p-5 rounded-3xl flex flex-col justify-center">
                             <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Total Records</span>
-                            <p className="text-3xl font-black text-purple-400 mt-2">{expenses.length}</p>
+                            <p className="text-3xl font-black text-purple-400 mt-2">{safeExpenses.length}</p>
                         </div>
                     </div>
                 </div>
@@ -286,14 +288,13 @@ export default function Dashboard() {
                             <option value="Other">Other</option>
                         </select>
                     </div>
-                    {/* UPDATED BUTTON: Changes text when you are editing */}
                     <button disabled={loading} className="w-full py-3 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-600/50 rounded-xl font-bold text-white text-sm transition-all shadow-lg shadow-blue-500/20">
                         {loading ? "Saving..." : editingId ? "💾 Update Transaction" : "+ Save Transaction"}
                     </button>
                 </form>
 
-                {/* Chart Visual */}
-                <ExpenseChart expenses={expenses}/>
+                {/* Chart Visual - Now passing the safe array! */}
+                <ExpenseChart expenses={safeExpenses}/>
 
                 {/* Search & Category Filter Section */}
                 <div className="bg-zinc-900/40 border border-zinc-800/80 p-6 rounded-3xl space-y-4">
@@ -327,7 +328,6 @@ export default function Dashboard() {
                                         </div>
                                     </div>
                                     
-                                    {/* UPDATED: Added Edit Button next to Delete */}
                                     <div className="flex items-center w-full sm:w-auto justify-between sm:justify-end gap-3 pt-3 sm:pt-0 mt-3 sm:mt-0 border-t sm:border-0 border-zinc-800">
                                         <span className="text-lg font-black text-emerald-400 mr-2">₹{Number(expense.amount).toFixed(2)}</span>
                                         <button onClick={() => handleEditClick(expense)} className="px-3 py-1 text-xs font-semibold text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 rounded-lg transition-colors">
