@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "../api/axios.js";
+// import axios from "../api/axios.js";
 import { User, Mail, Lock, AlertCircle } from "lucide-react";
+import instance from "../api/axios.js";
 
 // FIXED: Changed "oonst" to "const"
 const Register = () => {
@@ -25,7 +26,7 @@ const Register = () => {
         setError("");
 
         try {
-            await axios.post('/auth/register', formData);
+            await instance.post('/auth/register', formData);
             navigate('/login');
         } catch (err) {
             setError(err.response?.data?.message || "Failed to register. Please try again.");
