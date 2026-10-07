@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setLogin } from "../../store/authSlice.js";
 import axios from "../api/axios";
+import instance from "../api/axios";
 
 export default function Login() {
     const [formData, setFormData] = useState({ email: "", password: "" });
@@ -18,7 +19,7 @@ export default function Login() {
         setLoading(true);
         
         try {
-            const response = await axios.post('/auth/login', formData);
+            const response = await instance.post('/auth/login', formData);
             
             // 1. Save user to Redux
             dispatch(setLogin(response.data.user)); 

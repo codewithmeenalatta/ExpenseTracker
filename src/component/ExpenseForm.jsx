@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import axios from "../api/axios.js";
 import { addExpenseState } from "../../store/expenseSlice.js";
+import instance from "../api/axios.js";
 
 export default function ExpenseForm() {
     const dispatch = useDispatch();
@@ -24,7 +25,7 @@ export default function ExpenseForm() {
 
         try {
             // 1. Send the new expense to your MongoDB database
-            const response = await axios.post('/expenses', formData);
+            const response = await instance.post('/expenses', formData);
             
             // 2. Immediately update Redux so it shows on screen without refreshing!
             dispatch(addExpenseState(response.data));

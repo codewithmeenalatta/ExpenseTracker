@@ -5,6 +5,7 @@ import { setLogout } from "../../store/authSlice.js";
 import { setExpenses, addExpenseState, deleteExpenseState, updateExpenseState } from "../../store/expenseSlice.js";
 import axios from "../api/axios.js";
 import ExpenseChart from "./ExpenseChart.jsx";
+import instance from "../api/axios.js";
 
 export default function Dashboard() {
     // Form & Basic State
@@ -73,7 +74,7 @@ export default function Dashboard() {
     useEffect(() => {
         const fetchExpenses = async () => {
             try {
-                const res = await axios.get('/expenses');
+                const res = await instance.get('/expenses');
                 // Note: If your backend sends { success: true, data: [...] }, 
                 // you might need to change this to: dispatch(setExpenses(res.data.data));
                 dispatch(setExpenses(res.data));
@@ -95,11 +96,11 @@ export default function Dashboard() {
         setLoading(true);
         try {
             if (editingId) {
-                const res = await axios.put(`/expenses/${editingId}`, newExpense);
+                const res = await instance.put(`/expenses/${editingId}`, newExpense);
                 dispatch(updateExpenseState(res.data));
                 setEditingId(null); 
             } else {
-                const res = await axios.post('/expenses', newExpense);
+                const res = await instance.post('/expenses', newExpense);
                 dispatch(addExpenseState(res.data));
             }
             
@@ -127,7 +128,7 @@ export default function Dashboard() {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`/expenses/${id}`);
+            await instance.delete(`/expenses/${id}`);
             dispatch(deleteExpenseState(id));
         } catch (error) {
             setError("Failed to delete expense");
@@ -137,7 +138,7 @@ export default function Dashboard() {
 
     const handleUpdateBudget = async () => {
         try {
-            const res = await axios.put('/auth/budget', { monthlyBudget: Number(newBudgetInput) });
+            const res = await instance.put('/auth/budget', { monthlyBudget: Number(newBudgetInput) });
             setBudget(res.data.monthlyBudget);
             setIsEditingBudget(false);
         } catch (error) { 
@@ -150,7 +151,7 @@ export default function Dashboard() {
         setAiLoading(true);
         setAiAdvice("");
         try {
-            const res = await axios.get('/ai/advice');
+            const res = await instance.get('/ai/advice');
             setAiAdvice(res.data.advice);
         } catch (error) {
              console.log(error)
